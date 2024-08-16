@@ -5,9 +5,11 @@ import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function YearGoalTemplate() {
   const supabase = createClient();
+  const router = useRouter();
   const [formData, setFormData] = useState({ yearlyGoal: "" });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -19,11 +21,12 @@ export default function YearGoalTemplate() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const { error } = await supabase
       .from("yearly_goals")
       .insert({ is_achieved: false, year: "2024", goal: formData.yearlyGoal });
 
-    console.log("error", error);
+    router.push("/goals-setup/quarter");
   };
 
   return (
@@ -33,16 +36,12 @@ export default function YearGoalTemplate() {
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
+          name="yearlyGoal"
           placeholder="올해 목표를 알려주세요"
           fullWidth
           onChange={handleChange}
         />
-        <Button
-          variant="outlined"
-          size="large"
-          href="/goals-setup/quarter"
-          type="submit"
-        >
+        <Button variant="outlined" size="large" type="submit">
           다음
         </Button>
       </form>
