@@ -1,5 +1,8 @@
 import { GeistSans } from "geist/font/sans";
+import { createClient } from "@/utils/supabase/server";
 import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -16,11 +19,26 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const canInitSupabaseClient = () => {
+    // This function is just for the interactive tutorial.
+    // Feel free to remove it once you have Supabase connected.
+    try {
+      createClient();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const isSupabaseConnected = canInitSupabaseClient();
+
   return (
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground">
         <main className="min-h-screen flex flex-col items-center">
+          <Header isSupabaseConnected={isSupabaseConnected} />
           {children}
+          <Footer />
         </main>
       </body>
     </html>
