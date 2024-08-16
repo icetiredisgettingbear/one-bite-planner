@@ -29,6 +29,7 @@ export default async function Index() {
       </nav>
 
       <div className="flex-1 flex flex-col gap-20 max-w-4xl px-3">
+        <h1 className="text-4xl text-center">산책할까요?</h1>
         <Header />
         <main className="flex-1 flex flex-col gap-6">
           <h2 className="font-bold text-4xl mb-4">Next steps</h2>
