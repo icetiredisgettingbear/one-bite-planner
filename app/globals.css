@@ -8,6 +8,9 @@
     --btn-background: #2d70d6;
     --btn-background-hover: #2061c3;
     --foreground: 200 50% 3%;
+    --text-primary: #333333;
+    --text-secondary: #797979;
+    --text-disabled: #bababa;
   }
 
   /* @media (prefers-color-scheme: dark) {
@@ -23,6 +26,7 @@
 @layer base {
   * {
     @apply border-foreground/20;
+    color: #333333;
   }
 }
 

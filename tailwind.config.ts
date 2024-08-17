@@ -9,6 +9,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      textColor: {
+        primary: "var(--text-primary)",
+        secondary: "var(--text-secondary)",
+        disabled: "var(--text-disabled)",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
