@@ -30,18 +30,20 @@ export default function YearGoalTemplate() {
   };
 
   return (
-    <div className="flex-1 w-[1280px] flex flex-col gap-8 items-center justify-center">
-      <Typography variant="h3">
+    <div className="flex-1 w-full max-w-[1280px] px-10 flex flex-col gap-5 justify-center">
+      <Typography variant="h2">
         2024년, 올해 이루고싶은 목표는 무엇인가요?
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           name="yearlyGoal"
+          label="올해 목표"
           placeholder="올해 목표를 알려주세요"
+          size="large"
           fullWidth
           onChange={handleChange}
         />
-        <Button variant="outlined" size="large" type="submit">
+        <Button className="mt-10" size="medium" type="submit">
           다음
         </Button>
       </form>
