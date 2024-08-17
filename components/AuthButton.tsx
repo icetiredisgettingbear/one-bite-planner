@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Button from "./Button";
+import Typography from "./Typography";
 
 export default async function AuthButton() {
   const supabase = createClient();
@@ -19,15 +20,15 @@ export default async function AuthButton() {
 
   return user ? (
     <div className="flex items-center gap-4">
-      안녕하세요, {user.email}!
+      <Typography variant="body2">안녕하세요, {user.email}!</Typography>
       <form action={signOut}>
-        <button className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
+        <Button variant="contained" color="info" size="small" type="submit">
           로그아웃
-        </button>
+        </Button>
       </form>
     </div>
   ) : (
-    <Button href="/login" variant="outlined">
+    <Button href="/login" size="small">
       로그인
     </Button>
   );
