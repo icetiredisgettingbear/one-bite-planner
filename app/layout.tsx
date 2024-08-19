@@ -1,5 +1,4 @@
 import { createClient } from "@/utils/supabase/server";
-import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Provider from "@/components/Provider";
