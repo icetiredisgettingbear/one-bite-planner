@@ -39,6 +39,7 @@ export const theme = createTheme({
       default: "FFFFFF",
       paper: "#F5F5F5",
     },
+    divider: "E5E5E5",
   },
   typography: {
     fontFamily: "Pretendard",
