@@ -51,6 +51,15 @@ export const theme = createTheme({
     caption: { fontSize: "12px", fontWeight: 500 },
   },
   components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "white",
+          borderBottom: "1px solid #E5E5E5",
+          boxShadow: "none",
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: ({ ownerState }) => ({
@@ -116,6 +125,14 @@ export const theme = createTheme({
             },
           }),
         }),
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          boxShadow: "none",
+        },
       },
     },
   },
