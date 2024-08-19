@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Provider from "@/components/Provider";
+import Stack from "@/components/Stack";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -37,11 +38,13 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground">
         <Provider>
-          <main className="min-h-screen flex flex-col items-center">
+          <Stack minHeight="100vh">
             <Header isSupabaseConnected={isSupabaseConnected} />
-            {children}
+            <Stack component="main" flex={1}>
+              {children}
+            </Stack>
             <Footer />
-          </main>
+          </Stack>
         </Provider>
       </body>
     </html>
