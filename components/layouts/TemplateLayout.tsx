@@ -12,7 +12,7 @@ export default function TemplateLayout({ ...props }: TemplateLayoutProps) {
         flexDirection: "column",
         pt: 15,
         pb: 10,
-        gap: 4,
+        gap: 5,
       }}
       {...props}
     />
