@@ -1,4 +1,3 @@
-import { PropsWithChildren } from "react";
 import Container, { ContainerProps } from "../Container";
 
 export interface TemplateLayoutProps extends ContainerProps {}
