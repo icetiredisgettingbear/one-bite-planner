@@ -119,11 +119,22 @@ export const theme = createTheme({
             "& .MuiInputBase-root": {
               fontSize: "20px",
               paddingTop: "12px",
-              paddingBottom: "12px",
+              paddingBottom: "8px",
             },
             "& .MuiInputLabel-root": {
               fontSize: "20px",
-              top: "8px",
+              top: "12px",
+            },
+          }),
+          ...(ownerState.size === "medium" && {
+            "& .MuiInputBase-root": {
+              fontSize: "18px",
+              paddingTop: "6px",
+              paddingBottom: "4px",
+            },
+            "& .MuiInputLabel-root": {
+              fontSize: "18px",
+              top: "6px",
             },
           }),
           ...(ownerState.size === "medium" &&
@@ -140,7 +151,7 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 16,
           boxShadow: "none",
         },
       },
