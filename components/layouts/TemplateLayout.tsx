@@ -1,11 +1,9 @@
 import { PropsWithChildren } from "react";
-import Container from "../Container";
+import Container, { ContainerProps } from "../Container";
 
-export interface TemplateLayoutProps {}
+export interface TemplateLayoutProps extends ContainerProps {}
 
-export default function TemplateLayout({
-  children,
-}: PropsWithChildren<TemplateLayoutProps>) {
+export default function TemplateLayout({ ...props }: TemplateLayoutProps) {
   return (
     <Container
       maxWidth="lg"
@@ -16,8 +14,7 @@ export default function TemplateLayout({
         pb: 10,
         gap: 4,
       }}
-    >
-      {children}
-    </Container>
+      {...props}
+    />
   );
 }
