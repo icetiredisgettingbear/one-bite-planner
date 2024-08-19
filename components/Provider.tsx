@@ -3,6 +3,12 @@
 import React from "react";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 
+declare module "@mui/material/styles/createPalette" {
+  interface TypeText {
+    brand: string;
+  }
+}
+
 declare module "@mui/material/TextField" {
   interface TextFieldPropsSizeOverrides {
     large: true;
@@ -27,6 +33,7 @@ export const theme = createTheme({
       primary: "#333333",
       secondary: "#797979",
       disabled: "#BABABA",
+      brand: "#2D70D6",
     },
   },
   typography: {
