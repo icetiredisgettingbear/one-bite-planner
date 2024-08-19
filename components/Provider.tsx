@@ -35,6 +35,10 @@ export const theme = createTheme({
       disabled: "#BABABA",
       brand: "#2D70D6",
     },
+    background: {
+      default: "FFFFFF",
+      paper: "#F5F5F5",
+    },
   },
   typography: {
     fontFamily: "Pretendard",
