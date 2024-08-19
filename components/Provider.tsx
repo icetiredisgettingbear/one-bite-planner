@@ -88,19 +88,19 @@ export const theme = createTheme({
             },
           }),
           ...(ownerState.size === "large" && {
-            borderRadius: "18px",
-            fontSize: "22px",
+            borderRadius: "16px",
+            fontSize: "20px",
             height: "64px",
             padding: "0 32px",
           }),
           ...(ownerState.size === "medium" && {
-            borderRadius: "16px",
-            fontSize: "20px",
+            borderRadius: "14px",
+            fontSize: "18px",
             height: "56px",
             padding: "0 28px",
           }),
           ...(ownerState.size === "small" && {
-            borderRadius: "12px",
+            borderRadius: "10px",
             fontSize: "14px",
             height: "40px",
             padding: "0 20px",
@@ -126,6 +126,14 @@ export const theme = createTheme({
               top: "8px",
             },
           }),
+          ...(ownerState.size === "medium" &&
+            ownerState.variant === "outlined" && {
+              "& .MuiInputBase-root": {
+                borderRadius: "16px",
+                fontSize: "18px",
+                height: "56px",
+              },
+            }),
         }),
       },
     },
