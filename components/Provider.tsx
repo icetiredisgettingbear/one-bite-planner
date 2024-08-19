@@ -1,12 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  StyledEngineProvider,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
-} from "@mui/material";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 
 declare module "@mui/material/TextField" {
   interface TextFieldPropsSizeOverrides {
@@ -19,19 +14,19 @@ export const theme = createTheme({
     primary: {
       main: "#2D70D6",
       light: "#3179E5",
-      dark: "#2769CC",
+      dark: "#1D60C5",
       contrastText: "#FFFFFF",
     },
     info: {
-      main: "#EBEBEB",
+      main: "#F0F0F0",
       light: "#EFEFEF",
       dark: "#DFDFDF",
       contrastText: "#535353",
     },
     text: {
       primary: "#333333",
-      secondary: "#666666",
-      disabled: "#999999",
+      secondary: "#797979",
+      disabled: "#BABABA",
     },
   },
   typography: {
