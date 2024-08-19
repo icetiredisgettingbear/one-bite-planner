@@ -1,10 +1,10 @@
-import { GeistSans } from "geist/font/sans";
 import { createClient } from "@/utils/supabase/server";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Provider from "@/components/Provider";
 import Stack from "@/components/Stack";
+import Head from "next/head";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -35,7 +35,14 @@ export default function RootLayout({
   const isSupabaseConnected = canInitSupabaseClient();
 
   return (
-    <html lang="en" className={GeistSans.className}>
+    <html lang="en">
+      <Head>
+        <link
+          rel="stylesheet"
+          as="style"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
+      </Head>
       <body className="bg-background text-foreground">
         <Provider>
           <Stack minHeight="100vh">
