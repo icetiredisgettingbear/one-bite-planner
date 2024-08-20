@@ -32,7 +32,7 @@ export default function MonthGoalTemplate() {
   });
   const { year, month, quarterMonths } = getCurrentDateInfo();
 
-  const commonInsertData = { is_achieved: false, year, month };
+  const commonInsertData = { is_achieved: false, year };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,8 +42,9 @@ export default function MonthGoalTemplate() {
   const handleSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
 
-    const goalsToInsert = goals.map((goal) => ({
+    const goalsToInsert = goals.map((goal, index) => ({
       ...commonInsertData,
+      month: quarterMonths[index],
       goal: formData[goal],
     }));
 
