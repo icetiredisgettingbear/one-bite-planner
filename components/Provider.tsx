@@ -114,38 +114,48 @@ export const theme = createTheme({
     MuiTextField: {
       defaultProps: { variant: "standard" },
       styleOverrides: {
-        root: ({ ownerState }) => ({
-          ...(ownerState.size === "large" && {
-            "& .MuiInputBase-root": {
-              fontSize: "20px",
-              paddingTop: "12px",
-              paddingBottom: "8px",
-            },
-            "& .MuiInputLabel-root": {
-              fontSize: "20px",
-              top: "12px",
-            },
-          }),
-          ...(ownerState.size === "medium" && {
-            "& .MuiInputBase-root": {
-              fontSize: "18px",
-              paddingTop: "6px",
-              paddingBottom: "4px",
-            },
-            "& .MuiInputLabel-root": {
-              fontSize: "18px",
-              top: "6px",
-            },
-          }),
-          ...(ownerState.size === "medium" &&
-            ownerState.variant === "outlined" && {
-              "& .MuiInputBase-root": {
-                borderRadius: "16px",
-                fontSize: "18px",
-                height: "56px",
-              },
-            }),
-        }),
+        root: ({ ownerState }) => {
+          const { size, variant } = ownerState;
+
+          if (variant === "standard") {
+            if (size === "large") {
+              return {
+                "& .MuiInputBase-root": {
+                  fontSize: "20px",
+                  paddingTop: "12px",
+                  paddingBottom: "8px",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "20px",
+                  top: "12px",
+                },
+              };
+            } else if (size === "medium") {
+              return {
+                "& .MuiInputBase-root": {
+                  fontSize: "18px",
+                  paddingTop: "6px",
+                  paddingBottom: "4px",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "18px",
+                  top: "6px",
+                },
+              };
+            }
+          }
+
+          if (variant === "outlined") {
+            if (size === "medium") {
+              return {
+                "& .MuiInputBase-root": {
+                  borderRadius: "16px",
+                  height: "56px",
+                },
+              };
+            }
+          }
+        },
       },
     },
     MuiCard: {
