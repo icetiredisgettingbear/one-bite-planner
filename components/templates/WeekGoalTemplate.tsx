@@ -61,6 +61,7 @@ export default function WeekGoalTemplate() {
 
           return (
             <TextField
+              key={`weeklyGoal${index + 1}`}
               name={`weeklyGoal${index + 1}`}
               label={getLabel()}
               placeholder="이번 분기 목표를 알려주세요"
