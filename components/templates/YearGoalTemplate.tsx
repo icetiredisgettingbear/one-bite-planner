@@ -3,38 +3,45 @@
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, useState, FormEventHandler } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import TemplateLayout from "../layouts/TemplateLayout";
+import Box from "../Box";
+import { getCurrentDateInfo } from "@/utils/dateUtils";
 
 export default function YearGoalTemplate() {
   const supabase = createClient();
   const router = useRouter();
   const [formData, setFormData] = useState({ yearlyGoal: "" });
+  const { year } = getCurrentDateInfo();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
 
     const { error } = await supabase
       .from("yearly_goals")
-      .insert({ is_achieved: false, year: "2024", goal: formData.yearlyGoal });
+      .insert({ is_achieved: false, year, goal: formData.yearlyGoal });
+
+    if (error) {
+      console.error("Error inserting yearly goals:", error.message);
+      return;
+    }
 
     router.push("/goals-setup/quarter");
   };
 
   return (
-    <div className="flex-1 w-full max-w-[1280px] px-10 flex flex-col gap-5 justify-center">
+    <TemplateLayout>
       <Typography variant="h2">
-        2024년, 올해 이루고싶은 목표는 무엇인가요?
+        {year}년, 올해 이루고 싶은 목표는 무엇인가요?
       </Typography>
-      <form onSubmit={handleSubmit}>
+      <Box component="form" onSubmit={handleSubmit}>
         <TextField
           name="yearlyGoal"
           label="올해 목표"
@@ -43,10 +50,10 @@ export default function YearGoalTemplate() {
           fullWidth
           onChange={handleChange}
         />
-        <Button className="mt-10" size="medium" type="submit">
+        <Button size="medium" type="submit" sx={{ mt: 6 }}>
           다음
         </Button>
-      </form>
-    </div>
+      </Box>
+    </TemplateLayout>
   );
 }
