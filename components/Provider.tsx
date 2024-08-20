@@ -88,13 +88,13 @@ export const theme = createTheme({
             },
           }),
           ...(ownerState.size === "large" && {
-            borderRadius: "16px",
+            borderRadius: "14px",
             fontSize: "20px",
             height: "64px",
             padding: "0 32px",
           }),
           ...(ownerState.size === "medium" && {
-            borderRadius: "14px",
+            borderRadius: "12px",
             fontSize: "18px",
             height: "56px",
             padding: "0 28px",
@@ -149,7 +149,8 @@ export const theme = createTheme({
             if (size === "medium") {
               return {
                 "& .MuiInputBase-root": {
-                  borderRadius: "16px",
+                  borderRadius: "12px",
+                  fontSize: "18px",
                   height: "56px",
                 },
               };
