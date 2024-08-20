@@ -1,8 +1,8 @@
-import QuarterGoalTemplate from "@/components/templates/QuarterGoalTemplate";
+import TodoTemplate from "@/components/templates/TodoTemplate";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
-export default async function QuarterGoalPage() {
+export default async function TodoPage() {
   const supabase = createClient();
 
   const {
@@ -13,5 +13,5 @@ export default async function QuarterGoalPage() {
     return redirect("/login");
   }
 
-  return <QuarterGoalTemplate />;
+  return <TodoTemplate />;
 }

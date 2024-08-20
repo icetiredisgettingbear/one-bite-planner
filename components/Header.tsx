@@ -1,4 +1,17 @@
 import AuthButton from "@/components/AuthButton";
+import Link from "next/link";
+import Image from "next/image";
+import Menus, { Menu } from "./Menus";
+import AppBar from "@mui/material/AppBar";
+import Container from "./Container";
+import Toolbar from "./Toolbar";
+import Stack from "./Stack";
+
+const menus: Menu[] = [
+  { pathname: "/goals-setup", label: "계획하기" },
+  { pathname: "/to-do", label: "실행하기" },
+  { pathname: "/progress", label: "돌아보기" },
+];
 
 interface HeaderProps {
   isSupabaseConnected: boolean;
@@ -6,22 +19,27 @@ interface HeaderProps {
 
 export default function Header({ isSupabaseConnected }: HeaderProps) {
   return (
-    <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-      <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm">
-        <div className="flex gap-x-12 items-center">
-          <h1 className="text-xl font-bold">한입 플래너</h1>
-          <ul className="flex space-x-6">
-            <li className="text-base text-gray-800 font-medium">목표설정</li>
-            <li className="text-base text-gray-800 font-medium">실행하기</li>
-            <li className="text-base text-gray-800 font-medium">돌아보기</li>
-          </ul>
-        </div>
-
-        <div className="flex gap-x-2 items-center">
-          {/* <DeployButton /> */}
+    <AppBar position="fixed" color="inherit" elevation={1}>
+      <Container maxWidth="lg">
+        <Toolbar disableGutters>
+          <Stack direction="row" flexGrow={1} gap={6}>
+            <Link
+              href="/"
+              passHref
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <Image
+                src="/images/one_bite_planner_logo.svg"
+                alt="한입 플래너 로고"
+                width={100}
+                height={22}
+              />
+            </Link>
+            <Menus menus={menus} />
+          </Stack>
           {isSupabaseConnected && <AuthButton />}
-        </div>
-      </div>
-    </nav>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
