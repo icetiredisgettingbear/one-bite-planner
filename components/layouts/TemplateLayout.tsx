@@ -9,9 +9,9 @@ export default function TemplateLayout({ ...props }: TemplateLayoutProps) {
       sx={{
         display: "flex",
         flexDirection: "column",
-        pt: 15,
-        pb: 10,
-        gap: 5,
+        pt: { xs: 10, sm: 15 },
+        pb: { xs: 6, sm: 10 },
+        gap: { xs: 3, sm: 5 },
       }}
       {...props}
     />
