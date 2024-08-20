@@ -9,6 +9,8 @@ import { ChangeEvent, useState, FormEventHandler } from "react";
 import TemplateLayout from "../layouts/TemplateLayout";
 import Stack from "../Stack";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 type FormData = {
   quarterlyGoal1: string;
@@ -23,6 +25,8 @@ const goals: (keyof FormData)[] = [
 ];
 
 export default function QuarterGoalTemplate() {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const supabase = createClient();
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
@@ -62,7 +66,7 @@ export default function QuarterGoalTemplate() {
   return (
     <TemplateLayout>
       <Stack gap={2}>
-        <Typography variant="h2">
+        <Typography variant={isSmallScreen ? "h4" : "h2"}>
           이번 {quarter}분기에 무엇을 해야 할까요?
         </Typography>
         <Typography variant="subtitle2" color="secondary">
@@ -76,7 +80,7 @@ export default function QuarterGoalTemplate() {
             name={goal}
             label={`분기 목표 ${index + 1}`}
             placeholder="이번 분기 목표를 알려주세요"
-            size="large"
+            size={isSmallScreen ? "medium" : "large"}
             fullWidth
             onChange={handleChange}
           />
@@ -87,10 +91,16 @@ export default function QuarterGoalTemplate() {
             size="medium"
             color="info"
             href="/goals-setup/year"
+            fullWidth={isSmallScreen}
           >
             이전
           </Button>
-          <Button variant="contained" size="medium" type="submit">
+          <Button
+            variant="contained"
+            size="medium"
+            type="submit"
+            fullWidth={isSmallScreen}
+          >
             다음
           </Button>
         </Stack>

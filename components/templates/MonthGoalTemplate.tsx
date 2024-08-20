@@ -9,6 +9,8 @@ import { ChangeEvent, useState, FormEventHandler } from "react";
 import TemplateLayout from "../layouts/TemplateLayout";
 import Stack from "@/components/Stack";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 type FormData = {
   monthlyGoal1: string;
@@ -23,6 +25,8 @@ const goals: (keyof FormData)[] = [
 ];
 
 export default function MonthGoalTemplate() {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const supabase = createClient();
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
@@ -62,7 +66,9 @@ export default function MonthGoalTemplate() {
 
   return (
     <TemplateLayout>
-      <Typography variant="h2">매월 무엇을 해야 할까요?</Typography>
+      <Typography variant={isSmallScreen ? "h4" : "h2"}>
+        매월 무엇을 해야 할까요?
+      </Typography>
       <Stack component="form" gap={2} onSubmit={handleSubmit}>
         {quarterMonths.map((quarterMonth, index) => {
           const getLabel = () => {
@@ -79,7 +85,7 @@ export default function MonthGoalTemplate() {
               name={`monthlyGoal${index + 1}`}
               label={getLabel()}
               placeholder="이번 월 목표를 알려주세요"
-              size="large"
+              size={isSmallScreen ? "medium" : "large"}
               fullWidth
               disabled={quarterMonth < month}
               onChange={handleChange}
@@ -92,10 +98,16 @@ export default function MonthGoalTemplate() {
             size="medium"
             color="info"
             href="/goals-setup/quarter"
+            fullWidth={isSmallScreen}
           >
             이전
           </Button>
-          <Button variant="contained" size="medium" type="submit">
+          <Button
+            variant="contained"
+            size="medium"
+            type="submit"
+            fullWidth={isSmallScreen}
+          >
             다음
           </Button>
         </Stack>

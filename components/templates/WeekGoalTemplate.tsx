@@ -9,10 +9,14 @@ import { ChangeEvent, useState, FormEventHandler } from "react";
 import TemplateLayout from "../layouts/TemplateLayout";
 import Stack from "@/components/Stack";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 type FormData = { [key: string]: string };
 
 export default function WeekGoalTemplate() {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const supabase = createClient();
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({});
@@ -46,7 +50,9 @@ export default function WeekGoalTemplate() {
 
   return (
     <TemplateLayout>
-      <Typography variant="h2">{month}월, 매주 무엇을 해야 할까요?</Typography>
+      <Typography variant={isSmallScreen ? "h4" : "h2"}>
+        {month}월, 매주 무엇을 해야 할까요?
+      </Typography>
       <Stack component="form" gap={2} onSubmit={handleSubmit}>
         {weeks.map((week, index) => {
           const weekNumber = index + 1;
@@ -65,7 +71,7 @@ export default function WeekGoalTemplate() {
               name={`weeklyGoal${index + 1}`}
               label={getLabel()}
               placeholder="이번 분기 목표를 알려주세요"
-              size="large"
+              size={isSmallScreen ? "medium" : "large"}
               fullWidth
               disabled={week < currentWeek}
               onChange={handleChange}
@@ -78,10 +84,16 @@ export default function WeekGoalTemplate() {
             size="medium"
             color="info"
             href="/goals-setup/month"
+            fullWidth={isSmallScreen}
           >
             이전
           </Button>
-          <Button variant="contained" size="medium" type="submit">
+          <Button
+            variant="contained"
+            size="medium"
+            type="submit"
+            fullWidth={isSmallScreen}
+          >
             다음
           </Button>
         </Stack>

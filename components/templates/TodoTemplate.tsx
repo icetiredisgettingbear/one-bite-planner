@@ -9,6 +9,8 @@ import TemplateLayout from "../layouts/TemplateLayout";
 import Card from "../Card";
 import Stack from "../Stack";
 import Checkbox from "../Checkbox";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const daysOfTheWeek = [
   { label: "월요일", key: "Mon" },
@@ -21,6 +23,8 @@ const daysOfTheWeek = [
 ];
 
 export default function TodoTemplate() {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const supabase = createClient();
   const [formData, setFormData] = useState({
     toDoGoalMon: [],
@@ -45,7 +49,7 @@ export default function TodoTemplate() {
 
   return (
     <TemplateLayout>
-      <Typography variant="h2">
+      <Typography variant={isSmallScreen ? "h4" : "h2"}>
         매일 해야 할 일을 한 입 거리로 나눠보세요.
       </Typography>
       <Stack gap={2}>
@@ -57,7 +61,7 @@ export default function TodoTemplate() {
               display: "flex",
               flexDirection: "column",
               px: 3,
-              py: 2,
+              py: 2.5,
               bgcolor: "background.paper",
               gap: 1.5,
             }}
@@ -110,10 +114,16 @@ export default function TodoTemplate() {
           size="medium"
           color="info"
           href="/goals-setup/week"
+          fullWidth={isSmallScreen}
         >
           이전
         </Button>
-        <Button variant="contained" size="medium" type="submit">
+        <Button
+          variant="contained"
+          size="medium"
+          type="submit"
+          fullWidth={isSmallScreen}
+        >
           저장
         </Button>
       </Stack>
