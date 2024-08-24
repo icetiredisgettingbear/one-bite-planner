@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { ChangeEvent, useState, FormEventHandler } from "react";
 import {
   Card,
   Typography,
@@ -16,69 +16,104 @@ import { useTheme } from "@mui/material/styles";
 import { createClient } from "@/utils/supabase/client";
 import TemplateLayout from "../layouts/TemplateLayout";
 import Checkbox from "../Checkbox";
+import Box from "@/components/Box";
+import { getCurrentDateInfo } from "@/utils/dateUtils";
 
-interface ToDo {
+interface Todo {
   id: number;
-  day: string;
-  content: string;
+  year: number;
+  week: number;
+  dayOfWeek: string;
+  goal: string;
+  isAchieved: boolean;
 }
 
-const daysOfTheWeek = [
-  { label: "월요일", key: "monday" },
-  { label: "화요일", key: "tuesday" },
-  { label: "수요일", key: "wednesday" },
-  { label: "목요일", key: "thursday" },
-  { label: "금요일", key: "friday" },
-  { label: "토요일", key: "saturday" },
-  { label: "일요일", key: "sunday" },
-];
+const daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"];
 
-const initialTodos: Record<string, ToDo[]> = {
-  monday: [{ id: 1, day: "monday", content: "" }],
-  tuesday: [{ id: 2, day: "tuesday", content: "" }],
-  wednesday: [{ id: 3, day: "wednesday", content: "" }],
-  thursday: [{ id: 4, day: "thursday", content: "" }],
-  friday: [{ id: 5, day: "friday", content: "" }],
-  saturday: [{ id: 6, day: "saturday", content: "" }],
-  sunday: [{ id: 7, day: "sunday", content: "" }],
-};
-
-const WeekGoals: React.FC = () => {
+const TodoTemplate: React.FC = () => {
+  const supabase = createClient();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const [toDos, setToDos] = useState<Record<string, ToDo[]>>(initialTodos);
+  const { year, currentWeek } = getCurrentDateInfo();
 
-  const addToDo = (day: string) => {
-    const newToDo = { id: Date.now(), day, content: "" };
-    setToDos((prev) => ({
+  const initialTodos: Record<string, Todo[]> = daysOfWeek.reduce((acc, day) => {
+    acc[day] = [];
+    return acc;
+  }, {} as Record<string, Todo[]>);
+
+  const [todos, setTodos] = useState<Record<string, Todo[]>>(initialTodos);
+
+  const addTodo = (dayOfWeek: string) => {
+    const newTodo = {
+      id: Date.now(),
+      year,
+      week: currentWeek,
+      dayOfWeek,
+      goal: "",
+      isAchieved: false,
+    };
+    setTodos((prev) => ({
       ...prev,
-      [day]: [...(prev[day] || []), newToDo],
+      [dayOfWeek]: [...(prev[dayOfWeek] || []), newTodo],
     }));
   };
 
-  const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    day: string,
+  const handleCheckboxChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    dayOfWeek: string,
     id: number
   ) => {
-    const newContent = event.target.value;
-    setToDos((prev) => ({
+    const isAchieved = event.target.checked;
+    setTodos((prev) => ({
       ...prev,
-      [day]: prev[day].map((todo) =>
-        todo.id === id ? { ...todo, content: newContent } : todo
+      [dayOfWeek]: prev[dayOfWeek].map((todo) =>
+        todo.id === id ? { ...todo, isAchieved } : todo
       ),
     }));
   };
 
-  const handleDelete = (day: string, id: number) => {
-    setToDos((prev) => ({
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    dayOfWeek: string,
+    id: number
+  ) => {
+    const newGoal = event.target.value;
+    setTodos((prev) => ({
       ...prev,
-      [day]: prev[day].filter((todo) => todo.id !== id),
+      [dayOfWeek]: prev[dayOfWeek].map((todo) =>
+        todo.id === id ? { ...todo, goal: newGoal } : todo
+      ),
     }));
   };
 
-  const handleAddButtonClick = (day: string) => {
-    addToDo(day);
+  const handleDeleteTodo = (dayOfWeek: string, id: number) => {
+    setTodos((prev) => ({
+      ...prev,
+      [dayOfWeek]: prev[dayOfWeek].filter((todo) => todo.id !== id),
+    }));
+  };
+
+  const handleAddTodo = (dayOfWeek: string) => {
+    addTodo(dayOfWeek);
+  };
+
+  const handleSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
+    e.preventDefault();
+
+    const goal = Object.values(todos)
+      .flat()
+      .map(({ id, dayOfWeek, isAchieved, ...rest }) => ({
+        day_of_week: dayOfWeek,
+        is_achieved: isAchieved,
+        ...rest,
+      }));
+
+    const { error } = await supabase.from("daily_goals").insert(goal);
+
+    if (error) {
+      console.error("Error inserting daily goals:", error.message);
+      return;
+    }
   };
 
   return (
@@ -86,89 +121,105 @@ const WeekGoals: React.FC = () => {
       <Typography variant={isSmallScreen ? "h4" : "h2"}>
         매일 해야 할 일을 한 입 거리로 나눠보세요.
       </Typography>
-      <Grid container spacing={2}>
-        {daysOfTheWeek.map(({ label, key }) => (
-          <Grid item xs={12} sm={6} md={4} key={key}>
-            <Card
-              key={key}
-              component="div"
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                px: 3,
-                py: 2.5,
-                bgcolor: "background.paper",
-                gap: 1.5,
-                height: "100%",
-              }}
-            >
-              <Stack gap={1} flex={1}>
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography
-                    display="flex"
-                    alignItems="center"
-                    variant="caption"
-                    fontWeight={600}
-                    py={0.25}
-                    px={1.5}
-                    bgcolor="#E9E9E9"
-                    borderRadius={10}
-                    width="fit-content"
-                    height={24}
-                  >
-                    {label}
-                  </Typography>
-                  <Stack direction="row" gap={0.5}>
+      <Box component="form" onSubmit={handleSubmit}>
+        <Grid container spacing={2}>
+          {daysOfWeek.map((day) => (
+            <Grid item xs={12} sm={6} md={4} key={day}>
+              <Card
+                key={day}
+                component="div"
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  px: 3,
+                  py: 2.5,
+                  bgcolor: "background.paper",
+                  gap: 1.5,
+                  height: "100%",
+                }}
+              >
+                <Stack gap={1} flex={1}>
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography
+                      display="flex"
+                      alignItems="center"
+                      variant="caption"
+                      fontWeight={600}
+                      py={0.25}
+                      px={1.5}
+                      bgcolor="#E9E9E9"
+                      borderRadius={10}
+                      width="fit-content"
+                      height={24}
+                    >
+                      {day}요일
+                    </Typography>
                     <Button
                       variant="contained"
                       color="info"
                       size="xsmall"
                       sx={{ background: "#DDDDDD" }}
-                      onClick={() => handleAddButtonClick(key)}
+                      onClick={() => handleAddTodo(day)}
                     >
                       추가
                     </Button>
-                    <Button variant="contained" color="primary" size="xsmall">
-                      저장
-                    </Button>
+                  </Stack>
+                  <Stack gap={0.5}>
+                    {todos[day].length < 1 ? (
+                      <Typography variant="body2" color="text.disabled">
+                        할 일을 추가하세요.
+                      </Typography>
+                    ) : (
+                      todos[day].map(({ id, goal, isAchieved }) => (
+                        <Stack
+                          direction="row"
+                          key={id}
+                          alignItems="center"
+                          spacing={1}
+                        >
+                          <Checkbox
+                            name="isAchieved"
+                            checked={isAchieved}
+                            onChange={(e) => handleCheckboxChange(e, day, id)}
+                            sx={{ p: 0 }}
+                          />
+                          <TextField
+                            value={goal}
+                            onChange={(e) => handleInputChange(e, day, id)}
+                            placeholder="할 일을 입력하세요"
+                            size="small"
+                            fullWidth
+                            InputProps={{ disableUnderline: true }}
+                            sx={{ input: { padding: 0 } }}
+                          />
+                          <IconButton
+                            onClick={() => handleDeleteTodo(day, id)}
+                            aria-label="delete"
+                          >
+                            <CloseIcon
+                              sx={{ fontSize: 20, color: "text.disabled" }}
+                            />
+                          </IconButton>
+                        </Stack>
+                      ))
+                    )}
                   </Stack>
                 </Stack>
-                <Stack gap={0.5}>
-                  {(toDos[key] || []).map(({ id, content }) => (
-                    <Stack
-                      direction="row"
-                      key={id}
-                      alignItems="center"
-                      spacing={1}
-                    >
-                      <Checkbox sx={{ p: 0 }} />
-                      <TextField
-                        value={content}
-                        onChange={(e) => handleInputChange(e, key, id)}
-                        placeholder="할 일을 입력하세요"
-                        size="small"
-                        fullWidth
-                        InputProps={{ disableUnderline: true }}
-                        sx={{ input: { padding: 0 } }}
-                      />
-                      <IconButton
-                        onClick={() => handleDelete(key, id)}
-                        aria-label="delete"
-                      >
-                        <CloseIcon
-                          sx={{ fontSize: 20, color: "text.disabled" }}
-                        />
-                      </IconButton>
-                    </Stack>
-                  ))}
-                </Stack>
-              </Stack>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+        <Button
+          size="medium"
+          type="submit"
+          sx={{ mt: 6 }}
+          fullWidth={isSmallScreen}
+        >
+          저장
+        </Button>
+      </Box>
     </TemplateLayout>
   );
 };
 
-export default WeekGoals;
+export default TodoTemplate;
