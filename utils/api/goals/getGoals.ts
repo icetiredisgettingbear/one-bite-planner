@@ -57,3 +57,31 @@ export const getCurrentQuarterlyGoals = async () => {
 
   return data?.map((item) => item.goal) || null;
 };
+
+export const getCurrentMonthlyGoals = async () => {
+  const supabase = createClient();
+  const { year, quarterMonths } = getCurrentDateInfo();
+
+  const userId = await getUserId();
+
+  if (!userId) {
+    console.error("User is not logged in");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("monthly_goals")
+    .select("month, goal")
+    .eq("user_id", userId)
+    .eq("year", year)
+    .in("month", quarterMonths)
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  if (error) {
+    console.error("Error fetching monthly goal:", error.message);
+    return null;
+  }
+
+  return data;
+};

@@ -5,12 +5,22 @@ import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useState, FormEventHandler } from "react";
+import { ChangeEvent, useState, FormEventHandler, useEffect } from "react";
 import TemplateLayout from "../layouts/TemplateLayout";
 import Stack from "@/components/Stack";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import {
+  getCurrentMonthlyGoals,
+  getCurrentQuarterlyGoals,
+  getCurrentYearlyGoal,
+} from "@/utils/api/goals/getGoals";
+
+type CurrentGoalInfo = {
+  yearlyGoal: string | null;
+  quarterlyGoals: string[];
+};
 
 type FormData = {
   monthlyGoal1: string;
@@ -33,6 +43,10 @@ export default function MonthGoalTemplate() {
     monthlyGoal1: "",
     monthlyGoal2: "",
     monthlyGoal3: "",
+  });
+  const [currentGoalInfo, setCurrentGoalInfo] = useState<CurrentGoalInfo>({
+    yearlyGoal: null,
+    quarterlyGoals: [],
   });
   const { year, month, quarterMonths } = getCurrentDateInfo();
 
@@ -64,8 +78,63 @@ export default function MonthGoalTemplate() {
     router.push("/goals-setup/week");
   };
 
+  useEffect(() => {
+    const fetchGoal = async () => {
+      const fetchedYearlyGoal = await getCurrentYearlyGoal();
+      const fetchedQuarterlyGoals = await getCurrentQuarterlyGoals();
+      const fetchedMonthlyGoals = await getCurrentMonthlyGoals();
+
+      const monthlyGoals = fetchedMonthlyGoals?.reduce((acc, curr, index) => {
+        acc[`monthlyGoal${index + 1}`] = curr.goal;
+        return acc;
+      }, {} as Record<string, string>) as FormData;
+
+      setFormData(monthlyGoals);
+
+      setCurrentGoalInfo({
+        yearlyGoal: fetchedYearlyGoal || null,
+        quarterlyGoals: fetchedQuarterlyGoals || [],
+      });
+    };
+
+    fetchGoal();
+  }, []);
+
   return (
     <TemplateLayout>
+      <Stack direction="row" gap={1}>
+        <Typography
+          display="flex"
+          alignItems="center"
+          variant="body2"
+          fontWeight={600}
+          px={2}
+          bgcolor="#E3ECF8"
+          borderRadius={10}
+          width="fit-content"
+          color="text.brand"
+          height={32}
+        >
+          {currentGoalInfo.yearlyGoal}
+        </Typography>
+        {currentGoalInfo.quarterlyGoals.map((goal, index) => (
+          <Typography
+            key={`quarterlyGoal${index}-${goal}`}
+            display="flex"
+            alignItems="center"
+            variant="body2"
+            fontWeight={600}
+            px={2}
+            bgcolor="#E3ECF8"
+            borderRadius={10}
+            width="fit-content"
+            color="text.brand"
+            height={32}
+          >
+            {goal}
+          </Typography>
+        ))}
+      </Stack>
       <Typography variant={isSmallScreen ? "h4" : "h2"}>
         매월 무엇을 해야 할까요?
       </Typography>
@@ -88,6 +157,7 @@ export default function MonthGoalTemplate() {
               size={isSmallScreen ? "medium" : "large"}
               fullWidth
               disabled={quarterMonth < month}
+              value={formData[`monthlyGoal${index + 1}` as keyof FormData]}
               onChange={handleChange}
             />
           );
