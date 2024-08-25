@@ -85,3 +85,31 @@ export const getCurrentMonthlyGoals = async () => {
 
   return data;
 };
+
+export const getCurrentWeeklyGoals = async () => {
+  const supabase = createClient();
+  const { year, weeks } = getCurrentDateInfo();
+
+  const userId = await getUserId();
+
+  if (!userId) {
+    console.error("User is not logged in");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("weekly_goals")
+    .select("week, goal")
+    .eq("user_id", userId)
+    .eq("year", year)
+    .in("week", weeks)
+    .order("id", { ascending: false })
+    .limit(weeks.length);
+
+  if (error) {
+    console.error("Error fetching monthly goal:", error.message);
+    return null;
+  }
+
+  return data.reverse();
+};
