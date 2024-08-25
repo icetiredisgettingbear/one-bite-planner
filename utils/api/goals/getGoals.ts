@@ -113,3 +113,29 @@ export const getCurrentWeeklyGoals = async () => {
 
   return data.reverse();
 };
+
+export const getCurrentDailyGoals = async () => {
+  const supabase = createClient();
+  const { year, currentWeek } = getCurrentDateInfo();
+
+  const userId = await getUserId();
+
+  if (!userId) {
+    console.error("User is not logged in");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("daily_goals")
+    .select("week, day_of_week, goal, is_achieved")
+    .eq("user_id", userId)
+    .eq("year", year)
+    .eq("week", currentWeek);
+
+  if (error) {
+    console.error("Error fetching daily goal:", error.message);
+    return null;
+  }
+
+  return data;
+};
