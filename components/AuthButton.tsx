@@ -6,25 +6,30 @@ import { useRouter } from "next/navigation";
 import Button from "./Button";
 import Typography from "./Typography";
 import Stack from "./Stack";
-import { User } from "@supabase/supabase-js";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { getUserProfile } from "@/utils/api/auth/getUserInfo";
+
+type UserProfile = {
+  id: string;
+  username: string;
+  goals_set: boolean;
+  created_at: string;
+};
 
 export default function AuthButton() {
-  const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const router = useRouter();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
-    const supabase = createClient();
-
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+    const fetchedUser = async () => {
+      const fetchedGoal = await getUserProfile();
+      setUserProfile(fetchedGoal);
     };
 
-    getUser();
+    fetchedUser();
   }, []);
 
   const signOut = async () => {
@@ -33,7 +38,7 @@ export default function AuthButton() {
     router.push("/login");
   };
 
-  return user ? (
+  return userProfile ? (
     <Stack direction="row" alignItems="center" gap={2}>
       <Stack
         direction={isSmallScreen ? "column" : "row"}
@@ -41,7 +46,7 @@ export default function AuthButton() {
       >
         <Typography variant="body2">안녕하세요, </Typography>
         <Typography variant="body2" fontWeight={600}>
-          {user.email}님
+          {userProfile.username}님
         </Typography>
       </Stack>
       <Button variant="contained" color="info" size="small" onClick={signOut}>
