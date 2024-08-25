@@ -209,14 +209,20 @@ const TodoTemplate: React.FC = () => {
             </Grid>
           ))}
         </Grid>
-        <Button
-          size="medium"
-          type="submit"
-          sx={{ mt: 6 }}
-          fullWidth={isSmallScreen}
-        >
-          저장
-        </Button>
+        <Stack direction="row" gap={1.5} mt={6}>
+          <Button
+            variant="contained"
+            size="medium"
+            color="info"
+            href="/goals-setup/week"
+            fullWidth={isSmallScreen}
+          >
+            이전
+          </Button>
+          <Button size="medium" type="submit" fullWidth={isSmallScreen}>
+            저장
+          </Button>
+        </Stack>
       </Box>
     </TemplateLayout>
   );
