@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState, FormEventHandler } from "react";
+import { ChangeEvent, useState, FormEventHandler, useEffect } from "react";
 import {
   Card,
   Typography,
@@ -18,6 +18,14 @@ import TemplateLayout from "../layouts/TemplateLayout";
 import Checkbox from "../Checkbox";
 import Box from "@/components/Box";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
+import {
+  getCurrentDailyGoals,
+  getCurrentWeeklyGoals,
+} from "@/utils/api/goals/getGoals";
+
+type CurrentGoalInfo = {
+  weeklyGoal: string | null;
+};
 
 interface Todo {
   id: number;
@@ -42,6 +50,9 @@ const TodoTemplate: React.FC = () => {
   }, {} as Record<string, Todo[]>);
 
   const [todos, setTodos] = useState<Record<string, Todo[]>>(initialTodos);
+  const [currentGoalInfo, setCurrentGoalInfo] = useState<CurrentGoalInfo>({
+    weeklyGoal: "",
+  });
 
   const addTodo = (dayOfWeek: string) => {
     const newTodo = {
@@ -116,8 +127,53 @@ const TodoTemplate: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchGoal = async () => {
+      const fetchedWeeklyGoals = await getCurrentWeeklyGoals();
+      const fetchedDailyoals = (await getCurrentDailyGoals()) || [];
+
+      fetchedWeeklyGoals?.forEach((el) => {
+        if (el.week === currentWeek) {
+          setCurrentGoalInfo({ weeklyGoal: el.goal });
+        }
+      });
+
+      const dailyGoals = daysOfWeek.reduce<Record<string, any[]>>(
+        (acc, day) => {
+          acc[day] = fetchedDailyoals
+            .filter((todo) => todo.day_of_week === day)
+            .map(({ day_of_week, is_achieved, ...rest }) => ({
+              dayOfWeek: day_of_week,
+              isAchieved: is_achieved,
+              ...rest,
+            }));
+          return acc;
+        },
+        {}
+      ) as Record<string, Todo[]>;
+
+      setTodos(dailyGoals);
+    };
+
+    fetchGoal();
+  }, []);
+
   return (
     <TemplateLayout>
+      <Typography
+        display="flex"
+        alignItems="center"
+        variant="body2"
+        fontWeight={600}
+        px={2}
+        bgcolor="#E3ECF8"
+        borderRadius={10}
+        width="fit-content"
+        color="text.brand"
+        height={32}
+      >
+        {currentGoalInfo.weeklyGoal}
+      </Typography>
       <Typography variant={isSmallScreen ? "h4" : "h2"}>
         매일 해야 할 일을 한 입 거리로 나눠보세요.
       </Typography>
