@@ -119,7 +119,7 @@ export default function QuarterGoalTemplate() {
             key={goal}
             name={goal}
             label={`분기 목표 ${index + 1}`}
-            placeholder="이번 분기 목표를 알려주세요"
+            placeholder="목표를 알려주세요"
             size={isSmallScreen ? "medium" : "large"}
             fullWidth
             value={formData[goal]}

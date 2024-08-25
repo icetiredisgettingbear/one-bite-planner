@@ -51,7 +51,7 @@ export const getCurrentQuarterlyGoals = async () => {
     .limit(3);
 
   if (error) {
-    console.error("Error fetching yearly goal:", error.message);
+    console.error("Error fetching quarterly goal:", error.message);
     return null;
   }
 
@@ -80,6 +80,60 @@ export const getCurrentMonthlyGoals = async () => {
 
   if (error) {
     console.error("Error fetching monthly goal:", error.message);
+    return null;
+  }
+
+  return data;
+};
+
+export const getCurrentWeeklyGoals = async () => {
+  const supabase = createClient();
+  const { year, weeks } = getCurrentDateInfo();
+
+  const userId = await getUserId();
+
+  if (!userId) {
+    console.error("User is not logged in");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("weekly_goals")
+    .select("week, goal")
+    .eq("user_id", userId)
+    .eq("year", year)
+    .in("week", weeks)
+    .order("id", { ascending: false })
+    .limit(weeks.length);
+
+  if (error) {
+    console.error("Error fetching weekly goal:", error.message);
+    return null;
+  }
+
+  return data.reverse();
+};
+
+export const getCurrentDailyGoals = async () => {
+  const supabase = createClient();
+  const { year, currentWeek } = getCurrentDateInfo();
+
+  const userId = await getUserId();
+
+  if (!userId) {
+    console.error("User is not logged in");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("daily_goals")
+    .select("id, week, day_of_week, goal, is_achieved")
+    .eq("user_id", userId)
+    .eq("year", year)
+    .eq("week", currentWeek);
+
+  if (error) {
+    console.error("Error fetching daily goal:", error.message);
     return null;
   }
 

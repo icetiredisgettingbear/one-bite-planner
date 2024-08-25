@@ -153,7 +153,7 @@ export default function MonthGoalTemplate() {
               key={`monthlyGoal${index + 1}`}
               name={`monthlyGoal${index + 1}`}
               label={getLabel()}
-              placeholder="이번 월 목표를 알려주세요"
+              placeholder="목표를 알려주세요"
               size={isSmallScreen ? "medium" : "large"}
               fullWidth
               disabled={quarterMonth < month}

@@ -5,12 +5,20 @@ import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useState, FormEventHandler } from "react";
+import { ChangeEvent, useState, FormEventHandler, useEffect } from "react";
 import TemplateLayout from "../layouts/TemplateLayout";
 import Stack from "@/components/Stack";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import {
+  getCurrentMonthlyGoals,
+  getCurrentWeeklyGoals,
+} from "@/utils/api/goals/getGoals";
+
+type CurrentGoalInfo = {
+  monthlyGoal: string | null;
+};
 
 type FormData = { [key: string]: string };
 
@@ -19,7 +27,17 @@ export default function WeekGoalTemplate() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const supabase = createClient();
   const router = useRouter();
-  const [formData, setFormData] = useState<FormData>({});
+  const [formData, setFormData] = useState<FormData>({
+    weeklyGoal1: "",
+    weeklyGoal2: "",
+    weeklyGoal3: "",
+    weeklyGoal4: "",
+    weeklyGoal5: "",
+    weeklyGoal6: "",
+  });
+  const [currentGoalInfo, setCurrentGoalInfo] = useState<CurrentGoalInfo>({
+    monthlyGoal: "",
+  });
   const { year, month, currentWeek, weeks } = getCurrentDateInfo();
 
   const commonInsertData = { is_achieved: false, year };
@@ -48,8 +66,44 @@ export default function WeekGoalTemplate() {
     router.push("/to-do");
   };
 
+  useEffect(() => {
+    const fetchGoal = async () => {
+      const fetchedMonthlyGoals = await getCurrentMonthlyGoals();
+      const fetchedWeeklyGoals = await getCurrentWeeklyGoals();
+
+      fetchedMonthlyGoals?.forEach((el) => {
+        if (el.month === month) {
+          setCurrentGoalInfo({ monthlyGoal: el.goal });
+        }
+      });
+
+      const weeklyGoals = fetchedWeeklyGoals?.reduce((acc, curr, index) => {
+        acc[`weeklyGoal${index + 1}`] = curr.goal;
+        return acc;
+      }, {} as Record<string, string>) as FormData;
+
+      setFormData(weeklyGoals);
+    };
+
+    fetchGoal();
+  }, []);
+
   return (
     <TemplateLayout>
+      <Typography
+        display="flex"
+        alignItems="center"
+        variant="body2"
+        fontWeight={600}
+        px={2}
+        bgcolor="#E3ECF8"
+        borderRadius={10}
+        width="fit-content"
+        color="text.brand"
+        height={32}
+      >
+        {currentGoalInfo.monthlyGoal}
+      </Typography>
       <Typography variant={isSmallScreen ? "h4" : "h2"}>
         {month}월, 매주 무엇을 해야 할까요?
       </Typography>
@@ -70,9 +124,10 @@ export default function WeekGoalTemplate() {
               key={`weeklyGoal${index + 1}`}
               name={`weeklyGoal${index + 1}`}
               label={getLabel()}
-              placeholder="이번 분기 목표를 알려주세요"
+              placeholder="목표를 알려주세요"
               size={isSmallScreen ? "medium" : "large"}
               fullWidth
+              value={formData[`weeklyGoal${index + 1}`]}
               disabled={week < currentWeek}
               onChange={handleChange}
             />
