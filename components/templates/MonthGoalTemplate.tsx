@@ -102,7 +102,7 @@ export default function MonthGoalTemplate() {
 
   return (
     <TemplateLayout>
-      <Stack direction="row" gap={1}>
+      <Stack direction="row" gap={1} flexWrap="wrap">
         <Typography
           display="flex"
           alignItems="center"
