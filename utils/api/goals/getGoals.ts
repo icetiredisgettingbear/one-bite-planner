@@ -127,7 +127,7 @@ export const getCurrentDailyGoals = async () => {
 
   const { data, error } = await supabase
     .from("daily_goals")
-    .select("week, day_of_week, goal, is_achieved")
+    .select("id, week, day_of_week, goal, is_achieved")
     .eq("user_id", userId)
     .eq("year", year)
     .eq("week", currentWeek);
