@@ -59,7 +59,7 @@ export default function YearGoalTemplate() {
         <TextField
           name="yearlyGoal"
           label="올해 목표"
-          placeholder="올해 목표를 알려주세요"
+          placeholder="목표를 알려주세요"
           size={isSmallScreen ? "medium" : "large"}
           fullWidth
           value={formData.yearlyGoal}

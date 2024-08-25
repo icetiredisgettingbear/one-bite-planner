@@ -167,7 +167,7 @@ const TodoTemplate: React.FC = () => {
                   <Stack gap={0.5}>
                     {todos[day].length < 1 ? (
                       <Typography variant="body2" color="text.disabled">
-                        할 일을 추가하세요.
+                        목표를 추가해 주세요.
                       </Typography>
                     ) : (
                       todos[day].map(({ id, goal, isAchieved }) => (
@@ -186,7 +186,7 @@ const TodoTemplate: React.FC = () => {
                           <TextField
                             value={goal}
                             onChange={(e) => handleInputChange(e, day, id)}
-                            placeholder="할 일을 입력하세요"
+                            placeholder="목표를 알려주세요"
                             size="small"
                             fullWidth
                             InputProps={{ disableUnderline: true }}

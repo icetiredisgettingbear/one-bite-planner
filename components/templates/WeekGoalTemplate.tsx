@@ -124,7 +124,7 @@ export default function WeekGoalTemplate() {
               key={`weeklyGoal${index + 1}`}
               name={`weeklyGoal${index + 1}`}
               label={getLabel()}
-              placeholder="이번 분기 목표를 알려주세요"
+              placeholder="목표를 알려주세요"
               size={isSmallScreen ? "medium" : "large"}
               fullWidth
               value={formData[`weeklyGoal${index + 1}`]}
