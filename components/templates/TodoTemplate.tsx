@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from "@mui/material/styles";
-import { createClient } from "@/utils/supabase/client";
 import TemplateLayout from "../layouts/TemplateLayout";
 import Checkbox from "../Checkbox";
 import Box from "@/components/Box";
@@ -22,12 +21,14 @@ import {
   getCurrentDailyGoals,
   getCurrentWeeklyGoals,
 } from "@/utils/api/goals/getGoals";
+import { upsertDailyGoals } from "@/utils/api/goals/updateGoals";
+import { deleteDailyGoals } from "@/utils/api/goals/deleteGoals";
 
 type CurrentGoalInfo = {
   weeklyGoal: string | null;
 };
 
-interface Todo {
+export interface Todo {
   id: number;
   year: number;
   week: number;
@@ -39,7 +40,6 @@ interface Todo {
 const daysOfWeek = ["월", "화", "수", "목", "금", "토", "일"];
 
 const TodoTemplate: React.FC = () => {
-  const supabase = createClient();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const { year, currentWeek } = getCurrentDateInfo();
@@ -50,9 +50,34 @@ const TodoTemplate: React.FC = () => {
   }, {} as Record<string, Todo[]>);
 
   const [todos, setTodos] = useState<Record<string, Todo[]>>(initialTodos);
+  const [deletedTodoIds, setDeletedTodoIds] = useState<number[]>([]);
   const [currentGoalInfo, setCurrentGoalInfo] = useState<CurrentGoalInfo>({
     weeklyGoal: "",
   });
+
+  const fetchDailyGoals = async () => {
+    const fetchedWeeklyGoals = await getCurrentWeeklyGoals();
+    const fetchedDailyoals = (await getCurrentDailyGoals()) || [];
+
+    fetchedWeeklyGoals?.forEach((el) => {
+      if (el.week === currentWeek) {
+        setCurrentGoalInfo({ weeklyGoal: el.goal });
+      }
+    });
+
+    const dailyGoals = daysOfWeek.reduce<Record<string, any[]>>((acc, day) => {
+      acc[day] = fetchedDailyoals
+        .filter((todo) => todo.day_of_week === day)
+        .map(({ day_of_week, is_achieved, ...rest }) => ({
+          dayOfWeek: day_of_week,
+          isAchieved: is_achieved,
+          ...rest,
+        }));
+      return acc;
+    }, {}) as Record<string, Todo[]>;
+
+    setTodos(dailyGoals);
+  };
 
   const addTodo = (dayOfWeek: string) => {
     const newTodo = {
@@ -102,6 +127,8 @@ const TodoTemplate: React.FC = () => {
       ...prev,
       [dayOfWeek]: prev[dayOfWeek].filter((todo) => todo.id !== id),
     }));
+
+    setDeletedTodoIds((prev) => [...prev, id]);
   };
 
   const handleAddTodo = (dayOfWeek: string) => {
@@ -111,51 +138,15 @@ const TodoTemplate: React.FC = () => {
   const handleSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
 
-    const goal = Object.values(todos)
-      .flat()
-      .map(({ id, dayOfWeek, isAchieved, ...rest }) => ({
-        day_of_week: dayOfWeek,
-        is_achieved: isAchieved,
-        ...rest,
-      }));
+    await deleteDailyGoals(deletedTodoIds);
+    await upsertDailyGoals(todos);
+    await fetchDailyGoals();
 
-    const { error } = await supabase.from("daily_goals").insert(goal);
-
-    if (error) {
-      console.error("Error inserting daily goals:", error.message);
-      return;
-    }
+    setDeletedTodoIds([]);
   };
 
   useEffect(() => {
-    const fetchGoal = async () => {
-      const fetchedWeeklyGoals = await getCurrentWeeklyGoals();
-      const fetchedDailyoals = (await getCurrentDailyGoals()) || [];
-
-      fetchedWeeklyGoals?.forEach((el) => {
-        if (el.week === currentWeek) {
-          setCurrentGoalInfo({ weeklyGoal: el.goal });
-        }
-      });
-
-      const dailyGoals = daysOfWeek.reduce<Record<string, any[]>>(
-        (acc, day) => {
-          acc[day] = fetchedDailyoals
-            .filter((todo) => todo.day_of_week === day)
-            .map(({ day_of_week, is_achieved, ...rest }) => ({
-              dayOfWeek: day_of_week,
-              isAchieved: is_achieved,
-              ...rest,
-            }));
-          return acc;
-        },
-        {}
-      ) as Record<string, Todo[]>;
-
-      setTodos(dailyGoals);
-    };
-
-    fetchGoal();
+    fetchDailyGoals();
   }, []);
 
   return (
