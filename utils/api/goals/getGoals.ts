@@ -51,7 +51,7 @@ export const getCurrentQuarterlyGoals = async () => {
     .limit(3);
 
   if (error) {
-    console.error("Error fetching yearly goal:", error.message);
+    console.error("Error fetching quarterly goal:", error.message);
     return null;
   }
 
@@ -107,7 +107,7 @@ export const getCurrentWeeklyGoals = async () => {
     .limit(weeks.length);
 
   if (error) {
-    console.error("Error fetching monthly goal:", error.message);
+    console.error("Error fetching weekly goal:", error.message);
     return null;
   }
 
