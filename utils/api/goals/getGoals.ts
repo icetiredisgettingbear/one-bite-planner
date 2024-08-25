@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/client";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
-import { getUserId } from "@/utils/api/auth/getUserId";
+import { getUserId } from "@/utils/api/auth/getUserInfo";
 
 export const getCurrentYearlyGoal = async () => {
   const supabase = createClient();
