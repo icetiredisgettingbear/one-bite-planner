@@ -3,7 +3,7 @@
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
-import { ChangeEvent, useState, FormEventHandler } from "react";
+import { ChangeEvent, useState, FormEventHandler, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import TemplateLayout from "../layouts/TemplateLayout";
@@ -11,6 +11,7 @@ import Box from "../Box";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { getCurrentYearlyGoal } from "@/utils/api/goals/getGoals";
 
 export default function YearGoalTemplate() {
   const theme = useTheme();
@@ -40,6 +41,15 @@ export default function YearGoalTemplate() {
     router.push("/goals-setup/quarter");
   };
 
+  useEffect(() => {
+    const fetchGoal = async () => {
+      const fetchedGoal = await getCurrentYearlyGoal();
+      setFormData({ yearlyGoal: fetchedGoal || "" });
+    };
+
+    fetchGoal();
+  }, []);
+
   return (
     <TemplateLayout>
       <Typography variant={isSmallScreen ? "h4" : "h2"}>
@@ -52,6 +62,7 @@ export default function YearGoalTemplate() {
           placeholder="올해 목표를 알려주세요"
           size={isSmallScreen ? "medium" : "large"}
           fullWidth
+          value={formData.yearlyGoal}
           onChange={handleChange}
         />
         <Button

@@ -15,6 +15,12 @@ declare module "@mui/material/TextField" {
   }
 }
 
+declare module "@mui/material/Button" {
+  interface ButtonPropsSizeOverrides {
+    xsmall: true;
+  }
+}
+
 export const theme = createTheme({
   palette: {
     primary: {
@@ -104,6 +110,13 @@ export const theme = createTheme({
             fontSize: "14px",
             height: "40px",
             padding: "0 20px",
+          }),
+          ...(ownerState.size === "xsmall" && {
+            borderRadius: "8px",
+            fontSize: "12px",
+            height: "28px",
+            padding: "0 12px",
+            minWidth: "fit-content",
           }),
           fontWeight: 600,
           boxShadow: "none",
