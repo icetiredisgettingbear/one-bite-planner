@@ -15,57 +15,56 @@ import {
   getCurrentYearlyGoal,
   getCurrentQuarterlyGoals,
 } from "@/utils/api/goals/getGoals";
+import {
+  QuarterlyGoal,
+  upsertQuarterlyGoal,
+} from "@/utils/api/goals/updateGoals";
 
-type FormData = {
-  quarterlyGoal1: string;
-  quarterlyGoal2: string;
-  quarterlyGoal3: string;
-};
+type QuarterlyGoalLabel = `quarterlyGoal${1 | 2 | 3}`;
+type QuarterlyGoals = Record<QuarterlyGoalLabel, QuarterlyGoal>;
 
-const goals: (keyof FormData)[] = [
+const { year, quarter } = getCurrentDateInfo();
+
+const goals: QuarterlyGoalLabel[] = [
   "quarterlyGoal1",
   "quarterlyGoal2",
   "quarterlyGoal3",
 ];
 
-const initialGoals = {
-  quarterlyGoal1: "",
-  quarterlyGoal2: "",
-  quarterlyGoal3: "",
+const initialGoal: QuarterlyGoal = {
+  year,
+  quarter,
+  goal: "",
+  is_achieved: false,
 };
 
 export default function QuarterGoalTemplate() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const supabase = createClient();
   const router = useRouter();
-  const [formData, setFormData] = useState<FormData>(initialGoals);
+  const supabase = createClient();
   const [yearlyGoal, setYearlyGoal] = useState<string | null>(null);
-  const { year, quarter } = getCurrentDateInfo();
+  const [quarterlyGoals, setQuarterlyGoals] = useState<QuarterlyGoals>({
+    quarterlyGoal1: initialGoal,
+    quarterlyGoal2: initialGoal,
+    quarterlyGoal3: initialGoal,
+  });
 
   const commonInsertData = { is_achieved: false, year, quarter };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setQuarterlyGoals((prev) => ({
+      ...prev,
+      [name]: { ...prev[name as QuarterlyGoalLabel], goal: value },
+    }));
   };
 
   const handleSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
 
-    const goalsToInsert = goals.map((goal) => ({
-      ...commonInsertData,
-      goal: formData[goal],
-    }));
-
-    const { error } = await supabase
-      .from("quarterly_goals")
-      .insert(goalsToInsert);
-
-    if (error) {
-      console.error("Error inserting quarterly goals:", error.message);
-      return;
-    }
+    const goalsToInsert = goals.map((goal) => quarterlyGoals[goal]);
+    await upsertQuarterlyGoal(goalsToInsert);
 
     router.push("/goals-setup/month");
   };
@@ -74,16 +73,16 @@ export default function QuarterGoalTemplate() {
     const fetchGoal = async () => {
       const fetchedYearlyGoal = await getCurrentYearlyGoal();
       const fetchedQuarterlyGoals = (await getCurrentQuarterlyGoals()) || [];
-      const convertToObject = (arr: string[]): Record<string, string> => {
-        return arr.reduce((acc, goal, index) => {
-          acc[`quarterlyGoal${index + 1}`] = goal;
-          return acc;
-        }, {} as Record<string, string>);
-      };
-      const quarterlyGoals = convertToObject(fetchedQuarterlyGoals) as FormData;
 
-      setYearlyGoal(fetchedYearlyGoal || null);
-      setFormData(quarterlyGoals);
+      const convertToObject = (arr: QuarterlyGoal[]): QuarterlyGoals => {
+        return arr.reduce((acc, goal, index) => {
+          acc[`quarterlyGoal${index + 1}` as QuarterlyGoalLabel] = goal;
+          return acc;
+        }, {} as QuarterlyGoals);
+      };
+
+      setYearlyGoal(fetchedYearlyGoal?.goal);
+      setQuarterlyGoals(convertToObject(fetchedQuarterlyGoals));
     };
 
     fetchGoal();
@@ -122,7 +121,7 @@ export default function QuarterGoalTemplate() {
             placeholder="목표를 알려주세요"
             size={isSmallScreen ? "medium" : "large"}
             fullWidth
-            value={formData[goal]}
+            value={quarterlyGoals[goal].goal}
             onChange={handleChange}
           />
         ))}
