@@ -2,10 +2,11 @@ import { createClient } from "@/utils/supabase/client";
 import { getCurrentDateInfo } from "@/utils/dateUtils";
 import { getUserId } from "@/utils/api/auth/getUserInfo";
 
-export const getCurrentYearlyGoal = async () => {
-  const supabase = createClient();
-  const { year } = getCurrentDateInfo();
+const supabase = createClient();
+const { year, quarter, quarterMonths, weeks, currentWeek } =
+  getCurrentDateInfo();
 
+export const getCurrentYearlyGoal = async () => {
   const userId = await getUserId();
 
   if (!userId) {
@@ -31,9 +32,6 @@ export const getCurrentYearlyGoal = async () => {
 };
 
 export const getCurrentQuarterlyGoals = async () => {
-  const supabase = createClient();
-  const { year, quarter } = getCurrentDateInfo();
-
   const userId = await getUserId();
 
   if (!userId) {
@@ -59,9 +57,6 @@ export const getCurrentQuarterlyGoals = async () => {
 };
 
 export const getCurrentMonthlyGoals = async () => {
-  const supabase = createClient();
-  const { year, quarterMonths } = getCurrentDateInfo();
-
   const userId = await getUserId();
 
   if (!userId) {
@@ -87,9 +82,6 @@ export const getCurrentMonthlyGoals = async () => {
 };
 
 export const getCurrentWeeklyGoals = async () => {
-  const supabase = createClient();
-  const { year, weeks } = getCurrentDateInfo();
-
   const userId = await getUserId();
 
   if (!userId) {
@@ -115,9 +107,6 @@ export const getCurrentWeeklyGoals = async () => {
 };
 
 export const getCurrentDailyGoals = async () => {
-  const supabase = createClient();
-  const { year, currentWeek } = getCurrentDateInfo();
-
   const userId = await getUserId();
 
   if (!userId) {
