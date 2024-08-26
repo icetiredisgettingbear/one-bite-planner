@@ -21,6 +21,25 @@ export const upsertYearlyGoal = async (goal: YearlyGoal) => {
   }
 };
 
+export type QuarterlyGoal = {
+  year: number;
+  quarter: number;
+  goal: string;
+  is_achieved: boolean;
+  id?: number;
+};
+
+export const upsertQuarterlyGoal = async (goal: QuarterlyGoal[]) => {
+  const { error } = await supabase
+    .from("quarterly_goals")
+    .upsert(goal, { onConflict: "id" });
+
+  if (error) {
+    console.error("Error upserting quarterly goals:", error.message);
+    return;
+  }
+};
+
 export const upsertDailyGoals = async (goals: Record<string, Todo[]>) => {
   const todosArray = Object.values(goals)
     .flat()
