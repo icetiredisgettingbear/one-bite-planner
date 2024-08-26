@@ -82,7 +82,7 @@ export default function QuarterGoalTemplate() {
       };
       const quarterlyGoals = convertToObject(fetchedQuarterlyGoals) as FormData;
 
-      setYearlyGoal(fetchedYearlyGoal || null);
+      setYearlyGoal(fetchedYearlyGoal?.goal);
       setFormData(quarterlyGoals);
     };
 

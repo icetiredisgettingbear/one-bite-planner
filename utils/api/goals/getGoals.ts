@@ -15,7 +15,7 @@ export const getCurrentYearlyGoal = async () => {
 
   const { data, error } = await supabase
     .from("yearly_goals")
-    .select("goal")
+    .select("id, year, goal, is_achieved")
     .eq("user_id", userId)
     .eq("year", year)
     .order("created_at", { ascending: false })
@@ -27,7 +27,7 @@ export const getCurrentYearlyGoal = async () => {
     return null;
   }
 
-  return data?.goal || null;
+  return data;
 };
 
 export const getCurrentQuarterlyGoals = async () => {
