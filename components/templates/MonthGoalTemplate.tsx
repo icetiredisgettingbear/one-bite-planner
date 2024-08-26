@@ -92,8 +92,8 @@ export default function MonthGoalTemplate() {
       setFormData(monthlyGoals);
 
       setCurrentGoalInfo({
-        yearlyGoal: fetchedYearlyGoal || null,
-        quarterlyGoals: fetchedQuarterlyGoals || [],
+        yearlyGoal: fetchedYearlyGoal?.goal || null,
+        quarterlyGoals: fetchedQuarterlyGoals?.map((goal) => goal.goal) || [],
       });
     };
 
