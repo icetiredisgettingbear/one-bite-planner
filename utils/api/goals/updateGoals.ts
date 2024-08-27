@@ -40,6 +40,25 @@ export const upsertQuarterlyGoal = async (goal: QuarterlyGoal[]) => {
   }
 };
 
+export type MonthlyGoal = {
+  year: number;
+  month: number;
+  goal: string;
+  is_achieved: boolean;
+  id?: number;
+};
+
+export const upsertMonthlyGoal = async (goal: MonthlyGoal[]) => {
+  const { error } = await supabase
+    .from("monthly_goals")
+    .upsert(goal, { onConflict: "id" });
+
+  if (error) {
+    console.error("Error upserting monthly goals:", error.message);
+    return;
+  }
+};
+
 export const upsertDailyGoals = async (goals: Record<string, Todo[]>) => {
   const todosArray = Object.values(goals)
     .flat()

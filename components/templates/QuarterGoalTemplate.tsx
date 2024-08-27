@@ -3,7 +3,6 @@
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
-import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState, FormEventHandler, useEffect } from "react";
 import TemplateLayout from "../layouts/TemplateLayout";
@@ -42,15 +41,12 @@ export default function QuarterGoalTemplate() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const router = useRouter();
-  const supabase = createClient();
   const [yearlyGoal, setYearlyGoal] = useState<string | null>(null);
   const [quarterlyGoals, setQuarterlyGoals] = useState<QuarterlyGoals>({
     quarterlyGoal1: initialGoal,
     quarterlyGoal2: initialGoal,
     quarterlyGoal3: initialGoal,
   });
-
-  const commonInsertData = { is_achieved: false, year, quarter };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
