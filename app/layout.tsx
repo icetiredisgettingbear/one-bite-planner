@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Provider from "@/components/Provider";
 import Stack from "@/components/Stack";
-import Head from "next/head";
+import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -35,14 +35,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <Head>
-        <link
-          rel="stylesheet"
-          as="style"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
-        />
-      </Head>
-      <body className="bg-background text-foreground">
+      <body>
         <Provider>
           <Stack minHeight="100vh">
             <Header isSupabaseConnected={isSupabaseConnected} />
