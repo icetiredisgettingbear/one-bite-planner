@@ -91,7 +91,7 @@ export const getCurrentWeeklyGoals = async () => {
 
   const { data, error } = await supabase
     .from("weekly_goals")
-    .select("week, goal")
+    .select("id, year, week, goal, is_achieved")
     .eq("user_id", userId)
     .eq("year", year)
     .in("week", weeks)

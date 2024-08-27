@@ -3,7 +3,6 @@
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
-import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState, FormEventHandler, useEffect } from "react";
 import TemplateLayout from "../layouts/TemplateLayout";
@@ -15,53 +14,54 @@ import {
   getCurrentMonthlyGoals,
   getCurrentWeeklyGoals,
 } from "@/utils/api/goals/getGoals";
+import { WeeklyGoal, upsertWeeklyGoal } from "@/utils/api/goals/updateGoals";
 
 type CurrentGoalInfo = {
   monthlyGoal: string | null;
 };
+type WeeklyGoalLabel = `weeklyGoal${1 | 2 | 3 | 4 | 5 | 6}`;
+type WeeklyGoals = Record<WeeklyGoalLabel, WeeklyGoal>;
 
-type FormData = { [key: string]: string };
+const { year, weeks, currentWeek, month } = getCurrentDateInfo();
+
+const goals: WeeklyGoalLabel[] = weeks.map(
+  (week, index) => `weeklyGoal${index + 1}` as WeeklyGoalLabel
+);
+
+const initialGoal: WeeklyGoals = weeks.reduce((acc, week, index) => {
+  acc[`weeklyGoal${index + 1}` as WeeklyGoalLabel] = {
+    year,
+    week,
+    goal: "",
+    is_achieved: false,
+  };
+  return acc;
+}, {} as WeeklyGoals);
 
 export default function WeekGoalTemplate() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const supabase = createClient();
   const router = useRouter();
-  const [formData, setFormData] = useState<FormData>({
-    weeklyGoal1: "",
-    weeklyGoal2: "",
-    weeklyGoal3: "",
-    weeklyGoal4: "",
-    weeklyGoal5: "",
-    weeklyGoal6: "",
-  });
+  const [weeklyGoals, setWeeklyGoals] = useState<WeeklyGoals>(initialGoal);
   const [currentGoalInfo, setCurrentGoalInfo] = useState<CurrentGoalInfo>({
     monthlyGoal: "",
   });
-  const { year, month, currentWeek, weeks } = getCurrentDateInfo();
-
-  const commonInsertData = { is_achieved: false, year };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setWeeklyGoals((prev) => ({
+      ...prev,
+      [name]: { ...prev[name as WeeklyGoalLabel], goal: value },
+    }));
   };
 
   const handleSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
 
-    const goalsToInsert = weeks.map((week, index) => ({
-      ...commonInsertData,
-      week,
-      goal: formData[`weeklyGoal${index + 1}`],
-    }));
-
-    const { error } = await supabase.from("weekly_goals").insert(goalsToInsert);
-
-    if (error) {
-      console.error("Error inserting weekly goals:", error.message);
-      return;
-    }
+    const goalsToInsert = goals
+      .filter((goal) => weeklyGoals[goal].goal !== null)
+      .map((goal) => weeklyGoals[goal]);
+    await upsertWeeklyGoal(goalsToInsert);
 
     router.push("/to-do");
   };
@@ -77,12 +77,16 @@ export default function WeekGoalTemplate() {
         }
       });
 
-      const weeklyGoals = fetchedWeeklyGoals?.reduce((acc, curr, index) => {
-        acc[`weeklyGoal${index + 1}`] = curr.goal;
-        return acc;
-      }, {} as Record<string, string>) as FormData;
+      if (fetchedWeeklyGoals && fetchedWeeklyGoals?.length > 0) {
+        const convertToObject = (arr: WeeklyGoal[]): WeeklyGoals => {
+          return arr.reduce((acc, goal, index) => {
+            acc[`weeklyGoal${index + 1}` as WeeklyGoalLabel] = goal;
+            return acc;
+          }, {} as WeeklyGoals);
+        };
 
-      setFormData(weeklyGoals);
+        setWeeklyGoals(convertToObject(fetchedWeeklyGoals));
+      }
     };
 
     fetchGoal();
@@ -127,7 +131,9 @@ export default function WeekGoalTemplate() {
               placeholder="목표를 알려주세요"
               size={isSmallScreen ? "medium" : "large"}
               fullWidth
-              value={formData[`weeklyGoal${index + 1}`]}
+              value={
+                weeklyGoals[`weeklyGoal${index + 1}` as WeeklyGoalLabel].goal
+              }
               disabled={week < currentWeek}
               onChange={handleChange}
             />
