@@ -48,7 +48,7 @@ export const theme = createTheme({
     divider: "E5E5E5",
   },
   typography: {
-    fontFamily: "Pretendard Variable",
+    fontFamily: "Pretendard Variable, sans-serif",
     h1: { fontSize: "56px", fontWeight: 600 },
     h2: { fontSize: "40px", fontWeight: 600 },
     h3: { fontSize: "36px", fontWeight: 600 },

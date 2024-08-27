@@ -3,7 +3,6 @@
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
-import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState, FormEventHandler, useEffect } from "react";
 import TemplateLayout from "../layouts/TemplateLayout";
@@ -16,64 +15,52 @@ import {
   getCurrentQuarterlyGoals,
   getCurrentYearlyGoal,
 } from "@/utils/api/goals/getGoals";
+import { MonthlyGoal, upsertMonthlyGoal } from "@/utils/api/goals/updateGoals";
 
 type CurrentGoalInfo = {
   yearlyGoal: string | null;
   quarterlyGoals: string[];
 };
+type MonthlyGoalLabel = `monthlyGoal${1 | 2 | 3}`;
+type MonthlyGoals = Record<MonthlyGoalLabel, MonthlyGoal>;
 
-type FormData = {
-  monthlyGoal1: string;
-  monthlyGoal2: string;
-  monthlyGoal3: string;
-};
+const { year, month, quarterMonths } = getCurrentDateInfo();
 
-const goals: (keyof FormData)[] = [
+const goals: MonthlyGoalLabel[] = [
   "monthlyGoal1",
   "monthlyGoal2",
   "monthlyGoal3",
 ];
 
+const initialGoal: MonthlyGoals = {
+  monthlyGoal1: { year, month: quarterMonths[0], goal: "", is_achieved: false },
+  monthlyGoal2: { year, month: quarterMonths[1], goal: "", is_achieved: false },
+  monthlyGoal3: { year, month: quarterMonths[2], goal: "", is_achieved: false },
+};
+
 export default function MonthGoalTemplate() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const supabase = createClient();
   const router = useRouter();
-  const [formData, setFormData] = useState<FormData>({
-    monthlyGoal1: "",
-    monthlyGoal2: "",
-    monthlyGoal3: "",
-  });
+  const [monthlyGoals, setMonthlyGoals] = useState<MonthlyGoals>(initialGoal);
   const [currentGoalInfo, setCurrentGoalInfo] = useState<CurrentGoalInfo>({
     yearlyGoal: null,
     quarterlyGoals: [],
   });
-  const { year, month, quarterMonths } = getCurrentDateInfo();
-
-  const commonInsertData = { is_achieved: false, year };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setMonthlyGoals((prev) => ({
+      ...prev,
+      [name]: { ...prev[name as MonthlyGoalLabel], goal: value },
+    }));
   };
 
   const handleSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
 
-    const goalsToInsert = goals.map((goal, index) => ({
-      ...commonInsertData,
-      month: quarterMonths[index],
-      goal: formData[goal],
-    }));
-
-    const { error } = await supabase
-      .from("monthly_goals")
-      .insert(goalsToInsert);
-
-    if (error) {
-      console.error("Error inserting monthly goals:", error.message);
-      return;
-    }
+    const goalsToInsert = goals.map((goal) => monthlyGoals[goal]);
+    await upsertMonthlyGoal(goalsToInsert);
 
     router.push("/goals-setup/week");
   };
@@ -84,16 +71,20 @@ export default function MonthGoalTemplate() {
       const fetchedQuarterlyGoals = await getCurrentQuarterlyGoals();
       const fetchedMonthlyGoals = await getCurrentMonthlyGoals();
 
-      const monthlyGoals = fetchedMonthlyGoals?.reduce((acc, curr, index) => {
-        acc[`monthlyGoal${index + 1}`] = curr.goal;
-        return acc;
-      }, {} as Record<string, string>) as FormData;
+      if (fetchedMonthlyGoals && fetchedMonthlyGoals?.length > 0) {
+        const convertToObject = (arr: MonthlyGoal[]): MonthlyGoals => {
+          return arr.reduce((acc, goal, index) => {
+            acc[`monthlyGoal${index + 1}` as MonthlyGoalLabel] = goal;
+            return acc;
+          }, {} as MonthlyGoals);
+        };
 
-      setFormData(monthlyGoals);
+        setMonthlyGoals(convertToObject(fetchedMonthlyGoals));
+      }
 
       setCurrentGoalInfo({
-        yearlyGoal: fetchedYearlyGoal || null,
-        quarterlyGoals: fetchedQuarterlyGoals || [],
+        yearlyGoal: fetchedYearlyGoal?.goal || null,
+        quarterlyGoals: fetchedQuarterlyGoals?.map((goal) => goal.goal) || [],
       });
     };
 
@@ -153,11 +144,13 @@ export default function MonthGoalTemplate() {
               key={`monthlyGoal${index + 1}`}
               name={`monthlyGoal${index + 1}`}
               label={getLabel()}
-              placeholder="이번 월 목표를 알려주세요"
+              placeholder="목표를 알려주세요"
               size={isSmallScreen ? "medium" : "large"}
               fullWidth
               disabled={quarterMonth < month}
-              value={formData[`monthlyGoal${index + 1}` as keyof FormData]}
+              value={
+                monthlyGoals[`monthlyGoal${index + 1}` as MonthlyGoalLabel].goal
+              }
               onChange={handleChange}
             />
           );

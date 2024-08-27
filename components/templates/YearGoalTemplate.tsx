@@ -4,7 +4,6 @@ import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import Typography from "@/components/Typography";
 import { ChangeEvent, useState, FormEventHandler, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import TemplateLayout from "../layouts/TemplateLayout";
 import Box from "../Box";
@@ -12,31 +11,28 @@ import { getCurrentDateInfo } from "@/utils/dateUtils";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { getCurrentYearlyGoal } from "@/utils/api/goals/getGoals";
+import { YearlyGoal, upsertYearlyGoal } from "@/utils/api/goals/updateGoals";
 
 export default function YearGoalTemplate() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const supabase = createClient();
-  const router = useRouter();
-  const [formData, setFormData] = useState({ yearlyGoal: "" });
   const { year } = getCurrentDateInfo();
+  const router = useRouter();
+  const [yearlyGoal, setYearlyGoal] = useState<YearlyGoal>({
+    year,
+    goal: "",
+    is_achieved: false,
+  });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setYearlyGoal((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit: FormEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
 
-    const { error } = await supabase
-      .from("yearly_goals")
-      .insert({ is_achieved: false, year, goal: formData.yearlyGoal });
-
-    if (error) {
-      console.error("Error inserting yearly goals:", error.message);
-      return;
-    }
+    upsertYearlyGoal(yearlyGoal);
 
     router.push("/goals-setup/quarter");
   };
@@ -44,7 +40,7 @@ export default function YearGoalTemplate() {
   useEffect(() => {
     const fetchGoal = async () => {
       const fetchedGoal = await getCurrentYearlyGoal();
-      setFormData({ yearlyGoal: fetchedGoal || "" });
+      fetchedGoal && setYearlyGoal(fetchedGoal);
     };
 
     fetchGoal();
@@ -57,12 +53,12 @@ export default function YearGoalTemplate() {
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <TextField
-          name="yearlyGoal"
+          name="goal"
           label="올해 목표"
-          placeholder="올해 목표를 알려주세요"
+          placeholder="목표를 알려주세요"
           size={isSmallScreen ? "medium" : "large"}
           fullWidth
-          value={formData.yearlyGoal}
+          value={yearlyGoal.goal}
           onChange={handleChange}
         />
         <Button
