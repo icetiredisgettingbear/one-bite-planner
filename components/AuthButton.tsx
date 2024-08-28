@@ -39,17 +39,19 @@ export default function AuthButton() {
   };
 
   return userProfile ? (
-    <Stack direction="row" alignItems="center" gap={2}>
-      <Stack
-        direction={isSmallScreen ? "column" : "row"}
-        gap={isSmallScreen ? 0 : 0.5}
-      >
+    <Stack direction="row" alignItems="center" flexWrap="wrap" gap={1.5}>
+      <Stack direction="row" gap={0.5}>
         <Typography variant="body2">안녕하세요, </Typography>
         <Typography variant="body2" fontWeight={600}>
           {userProfile.username}님
         </Typography>
       </Stack>
-      <Button variant="contained" color="info" size="small" onClick={signOut}>
+      <Button
+        variant="contained"
+        color="info"
+        size={isSmallScreen ? "xsmall" : "small"}
+        onClick={signOut}
+      >
         로그아웃
       </Button>
     </Stack>
