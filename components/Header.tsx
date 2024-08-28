@@ -1,15 +1,16 @@
-import Link from "next/link";
-import Image from "next/image";
-import Menus, { Menu } from "./Menus";
-import AppBar from "@mui/material/AppBar";
-import Container from "./Container";
-import Toolbar from "./Toolbar";
+import Link from "next/link"
+import Image from "next/image"
+import Menus, { Menu } from "./Menus"
+import AppBar from "@mui/material/AppBar"
+import Container from "./Container"
+import Toolbar from "./Toolbar"
 
 const menus: Menu[] = [
   { pathname: "/goals-setup", label: "계획하기" },
   { pathname: "/to-do", label: "실행하기" },
   { pathname: "/progress", label: "돌아보기" },
-];
+  { pathname: "/calendar", label: "달력" },
+]
 
 interface HeaderProps {
   isSupabaseConnected: boolean;
@@ -32,9 +33,9 @@ export default function Header({ isSupabaseConnected }: HeaderProps) {
               height={22}
             />
           </Link>
-          <Menus menus={menus} />
+          <Menus menus={menus}/>
         </Toolbar>
       </Container>
     </AppBar>
-  );
+  )
 }
